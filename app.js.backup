@@ -947,34 +947,23 @@ function performCustomProcedure() {
     const input = document.getElementById('procedure-name');
     if (input && input.value.trim() !== '') { performAction(`Procedimento realizado: ${input.value}`); input.value = ''; } 
     else { alert('Digite o nome do procedimento a ser realizado.'); }
-}
-
-// --- FUN√á√ïES DE CRIA√á√ÉO DE CASO --- //
+// --- FUN«’ES DE CRIA«√O DE CASO --- //
 
 function showCaseCreator() {
-    // Esconder simulador e mostrar criador
-    document.getElementById('app-container').classList.add('hidden');
     document.getElementById('case-creator').classList.remove('hidden');
-}
-
-function hideCaseCreator() {
-    // Esconder criador e mostrar simulador (se houver caso carregado)
-    document.getElementById('case-creator').classList.add('hidden');
-    if (currentCase) {
-        document.getElementById('app-container').classList.remove('hidden');
-    }
+    document.getElementById('simulator-interface').classList.add('hidden');
 }
 
 function createCaseFromForm() {
     const form = document.getElementById('creator-form');
     const formData = new FormData(form);
 
-    // Validar campos obrigat√≥rios
+    // Validar campos obrigatÛrios
     const requiredFields = ['difficulty', 'patient-name', 'patient-age', 'patient-gender', 'case-description', 'main-complaint'];
     const missingFields = requiredFields.filter(field => !formData.get(field)?.trim());
 
     if (missingFields.length > 0) {
-        alert(`Por favor, preencha os seguintes campos obrigat√≥rios: ${missingFields.join(', ')}`);
+        alert(Por favor, preencha os seguintes campos obrigatÛrios: );
         return;
     }
 
@@ -985,7 +974,7 @@ function createCaseFromForm() {
             name: formData.get('patient-name'),
             age: formData.get('patient-age'),
             gender: formData.get('patient-gender'),
-            weight: formData.get('patient-weight') || 'N√£o informado'
+            weight: formData.get('patient-weight') || 'N„o informado'
         },
         case: formData.get('case-description'),
         main_complaint: formData.get('main-complaint'),
@@ -998,9 +987,9 @@ function createCaseFromForm() {
 
     // Esconder criador e mostrar simulador
     document.getElementById('case-creator').classList.add('hidden');
-    document.getElementById('app-container').classList.remove('hidden');
+    document.getElementById('simulator-interface').classList.remove('hidden');
 
-    // Limpar formul√°rio
+    // Limpar formul·rio
     form.reset();
 }
 

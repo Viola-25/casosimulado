@@ -10,58 +10,172 @@
     <header>
         <h1>Simulador Paciente 360</h1>
         <div class="file-loader">
-            <label for="api-key">Chave API Groq: </label>
-            <input type="password" id="api-key" placeholder="Insira sua API Key (gsk_...)" style="margin-bottom: 10px;">
-            <br>
-            <label for="case-file">Carregar Caso (JSON): </label>
+            <label for="api-key">Chave API Groq</label>
+            <input type="password" id="api-key" placeholder="Insira sua API Key (gsk_...)">
+            <label for="case-file">Caso (JSON)</label>
             <input type="file" id="case-file" accept=".json">
+            <button type="button" onclick="showCaseCreator()">Criar Caso</button>
         </div>
     </header>
 
+    <!-- Tela de Criação de Caso -->
+    <div id="case-creator" class="case-creator-panel hidden">
+        <h2>Criar Novo Caso Clínico</h2>
+
+        <form id="creator-form" class="creator-form">
+            <div class="form-group">
+                <label for="difficulty">Grau de Dificuldade:</label>
+                <select id="difficulty" name="difficulty" required>
+                    <option value="">Selecione...</option>
+                    <option value="iniciante">Iniciante</option>
+                    <option value="intermediario">Intermediário</option>
+                    <option value="avancado">Avançado</option>
+                    <option value="especialista">Especialista</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="creator-patient-name">Nome do Paciente:</label>
+                <input type="text" id="creator-patient-name" name="patient-name" placeholder="Ex: João Silva" required>
+            </div>
+
+            <div class="form-group">
+                <label for="creator-patient-age">Idade:</label>
+                <input type="number" id="creator-patient-age" name="patient-age" placeholder="Ex: 55" required>
+            </div>
+
+            <div class="form-group">
+                <label for="creator-patient-gender">Gênero:</label>
+                <select id="creator-patient-gender" name="patient-gender" required>
+                    <option value="">Selecione...</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Feminino">Feminino</option>
+                    <option value="Outro">Outro</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="creator-patient-weight">Peso (kg):</label>
+                <input type="number" id="creator-patient-weight" name="patient-weight" placeholder="Ex: 85">
+            </div>
+
+            <div class="form-group">
+                <label for="case-description">Descrição do Caso:</label>
+                <textarea id="case-description" name="case-description" rows="4" placeholder="Descreva o caso clínico em detalhes..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="main-complaint">Queixa Principal:</label>
+                <textarea id="main-complaint" name="main-complaint" rows="2" placeholder="Ex: Dor no peito há 1 hora" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="observations">Observações:</label>
+                <textarea id="observations" name="observations" rows="3" placeholder="Observações adicionais para o estudante..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="ai-instructions">Instruções para a IA:</label>
+                <textarea id="ai-instructions" name="ai-instructions" rows="4" placeholder="Instruções especiais para o comportamento da IA..." required></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" onclick="createCaseFromForm()">Criar Caso</button>
+                <button type="button" class="back-btn" onclick="hideCaseCreator()">Voltar</button>
+            </div>
+        </form>
+    </div>
+
     <main id="app-container" class="hidden">
         <aside class="sidebar">
-            <h3>Ações</h3>
-            <button onclick="showPanel('anamnesis')">Anamnese</button>
-            <button onclick="showPanel('exam')">Exame Físico</button>
-            <button onclick="showPanel('access')">Acessos e Dispositivos</button>
-            <button onclick="showPanel('meds')">Medicamentos</button>
-            <button onclick="showPanel('conduct')">Condutas</button>
+            <h2>Menu</h2>
+            <button type="button" class="tab-btn active" data-panel="anamnesis" onclick="showPanel('anamnesis')">Anamnese</button>
+            <button type="button" class="tab-btn" data-panel="exam" onclick="showPanel('exam')">Exame Físico</button>
+            <button type="button" class="tab-btn" data-panel="access" onclick="showPanel('access')">Acessos e Dispositivos</button>
+            <button type="button" class="tab-btn" data-panel="meds" onclick="showPanel('meds')">Medicamentos</button>
+            <button type="button" class="tab-btn" data-panel="conduct" onclick="showPanel('conduct')">Condutas</button>
+            <button type="button" class="back-btn" onclick="showCaseCreator()">← Voltar ao Criador</button>
         </aside>
 
         <section class="content-area">
             <div class="patient-header">
-                <h2 id="patient-name">Nome do Paciente</h2>
-                <p><span id="patient-age"></span> anos | <span id="patient-gender"></span> | Peso: <span id="patient-weight"></span>kg</p>
+                <div>
+                    <h2 id="patient-name">Nome do Paciente</h2>
+                    <p class="patient-meta"><span id="patient-age"></span> anos · <span id="patient-gender"></span> · Peso: <span id="patient-weight"></span> kg</p>
+                </div>
             </div>
 
             <div id="panel-anamnesis" class="panel active">
                 <h3>História Clínica</h3>
-                <p><strong>Queixa Principal:</strong> <span id="cc"></span></p>
-                <p><strong>HMA:</strong> <span id="hma"></span></p>
-                <p><strong>Comorbidades:</strong> <span id="comorbidities"></span></p>
-                <p><strong>Alergias:</strong> <span class="alert" id="allergies"></span></p>
-
-                <div class="anamnesis-chat">
-                    <h4>Conversar com o Paciente</h4>
-                    <div id="anamnesis-log" class="chat-log"></div>
-                    <div class="chat-input">
-                        <input type="text" id="anamnesis-question" placeholder="Faça uma pergunta ao paciente..." onkeydown="if(event.key==='Enter') askPatient()">
-                        <button onclick="askPatient()">Perguntar</button>
+                
+                <button type="button" onclick="togglePatientInfo()" style="margin-bottom: 16px; padding: 8px 12px; font-size: 13px;">ℹ️ Ver Informações do Paciente</button>
+                
+                <div id="patient-info-section" style="display: none; margin-bottom: 20px; padding: 14px; background: #f1f5f9; border-radius: 8px; border-left: 4px solid var(--accent);">
+                    <h5 style="margin-top: 0;">Informações Resumidas</h5>
+                    <div style="font-size: 13px; line-height: 1.8;">
+                        <div><strong>Queixa Principal:</strong> <span id="cc"></span></div>
+                        <div><strong>HMA:</strong> <span id="hma"></span></div>
+                        <div><strong>Comorbidades:</strong> <span id="comorbidities"></span></div>
+                        <div><strong>Alergias:</strong> <span class="alert" id="allergies"></span></div>
+                    </div>
+                </div>
+                
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-header-btn active" onclick="switchAnamnesisTab('free-chat', this)">Chat Livre</button>
+                        <button class="tab-header-btn" onclick="switchAnamnesisTab('closed-questions', this)">Perguntas Fechadas</button>
+                    </div>
+                    
+                    <div id="free-chat-tab" class="anamnesis-tab active">
+                        <div class="anamnesis-chat">
+                            <h4>Converse com o paciente</h4>
+                            <div id="anamnesis-log" class="chat-log"></div>
+                            <div class="chat-input">
+                                <input type="text" id="anamnesis-question" placeholder="Faça uma pergunta ao paciente..." onkeydown="if(event.key==='Enter') askPatient()">
+                                <button type="button" onclick="askPatient()">Perguntar</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="closed-questions-tab" class="anamnesis-tab">
+                        <div id="closed-questions-container" style="padding: 10px; overflow-y: auto; max-height: 500px;">
+                            <p style="color: var(--text-light);">Carregando perguntas...</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div id="panel-exam" class="panel">
                 <h3>Exame Físico</h3>
-                <p id="physical-exam-text"></p>
+                <p>Escolha as manobras e sistemas que deseja investigar. O paciente só revela os achados após cada ação.</p>
+                <div class="action-grid" id="physical-exam-actions"></div>
+
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);">
+                    <label for="custom-exam">Ou descreva o exame:</label>
+                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 8px;">
+                        <input type="text" id="custom-exam" placeholder="Ex: Teste de Romberg, Teste de Babinski...">
+                        <button type="button" onclick="performPhysicalExam(document.getElementById('custom-exam').value)">Executar</button>
+                    </div>
+                </div>
+
+                <div class="panel subpanel">
+                    <h4>Resultados do Exame Físico</h4>
+                    <div id="physical-exam-results" class="exam-results-list"></div>
+                </div>
             </div>
 
             <div id="panel-access" class="panel">
                 <h3>Acessos e Dispositivos</h3>
-                <button onclick="performAction('Acesso Venoso Periférico puncionado.')">Puncionar AVP</button>
-                <button onclick="performAction('Acesso Venoso Central passado.')">Passar AVC</button>
-                <button onclick="performAction('Monitorização instalada.')">Instalar Monitor</button>
-                <button onclick="performAction('O2 Suplementar (Cateter) instalado.')">O2 Cateter Nasal</button>
+                <p>Selecione o que deseja aplicar. Há opções indicadas, não indicadas e menos úteis.</p>
+                <div class="action-grid" id="access-action-options"></div>
+
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);">
+                    <label for="custom-access">Ou descreva o dispositivo/acesso:</label>
+                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 8px;">
+                        <input type="text" id="custom-access" placeholder="Ex: Cateter periférico, Linha arterial...">
+                        <button type="button" onclick="performAction(document.getElementById('custom-access').value)">Aplicar</button>
+                    </div>
+                </div>
             </div>
 
             <div id="panel-meds" class="panel">
@@ -74,36 +188,62 @@
                         <option value="SC">SC</option>
                     </select>
                     <input type="text" id="med-name" placeholder="Medicamento e dose (ex: AAS 300mg)">
-                    <button onclick="administerMed()">Administrar</button>
+                    <button type="button" onclick="administerMed()">Administrar</button>
                 </div>
             </div>
 
             <div id="panel-conduct" class="panel">
                 <h3>Condutas e Exames</h3>
-                <button onclick="performAction('ECG 12 derivações solicitado.')">Solicitar ECG</button>
-                <button onclick="performAction('Exames laboratoriais coletados.')">Coletar Laboratório</button>
-                <button onclick="performAction('Raio-X de Tórax solicitado.')">Raio-X de Tórax</button>
-                <button onclick="performAction('Desfibrilação / Cardioversão realizada.')">Choque Elétrico</button>
+                <p>Escolha condutas e exames. Nem todas são obrigatórias; use o raciocínio clínico.</p>
+                <div class="action-grid" id="conduct-action-options"></div>
 
-                <div class="exam-results-area" style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px;">
-                    <h4>Resultados Recebidos</h4>
-                    <div id="exam-results-list"></div>
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);">
+                    <label for="custom-conduct">Ou descreva a conduta/exame:</label>
+                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 8px;">
+                        <input type="text" id="custom-conduct" placeholder="Ex: Ressonância de tórax, Cateterismo cardíaco...">
+                        <button type="button" onclick="performAction(document.getElementById('custom-conduct').value)">Solicitar</button>
+                    </div>
                 </div>
-            </div>
 
-            <div class="log-area">
-                <h3>Log de Ações</h3>
-                <ul id="action-log"></ul>
+                <div class="panel subpanel">
+                    <h4>Resultados Recebidos</h4>
+                    <div id="exam-results-list" class="exam-results-list"></div>
+                </div>
             </div>
         </section>
 
-        <aside class="monitor">
-            <h3>Monitor Multiparamétrico</h3>
-            <div class="vital"><span class="label">FC (bpm):</span> <span id="vital-hr" class="value yellow">--</span></div>
-            <div class="vital"><span class="label">PA (mmHg):</span> <span id="vital-bp" class="value red">--</span> <button onclick="measureBP()" style="margin-left: 10px; font-size: 0.7em; cursor: pointer;">Reaferir</button></div>
-            <div class="vital"><span class="label">SpO2 (%):</span> <span id="vital-spo2" class="value cyan">--</span></div>
-            <div class="vital"><span class="label">FR (irpm):</span> <span id="vital-rr" class="value white">--</span></div>
-            <div class="vital"><span class="label">Temp (ºC):</span> <span id="vital-temp" class="value green">--</span></div>
+        <aside class="right-panel">
+            <div id="monitor-panel" class="panel" style="display: block !important;">
+                <h3>Monitor & Sinais Vitais</h3>
+                <div class="vitals-grid">
+                    <div class="vital-item"><label>FC</label><span id="monitor-vital-hr">--</span><small>bpm</small></div>
+                    <div class="vital-item"><label>SpO₂</label><span id="monitor-vital-spo2">--</span><small>%</small></div>
+                    <div class="vital-item"><label>PA (NIBP)</label><span id="monitor-vital-bp">--</span><small>mmHg</small></div>
+                    <div class="vital-item"><label>FR</label><span id="monitor-vital-rr">--</span><small>ipm</small></div>
+                    <div class="vital-item"><label>Temp</label><span id="monitor-vital-temp">--</span><small>°C</small></div>
+                    <div class="vital-item"><button type="button" onclick="measureBP()">Aferir PA</button></div>
+                </div>
+            </div>
+
+            <div id="dynamic-quick-actions" class="panel">
+                <h3>Ações Rápidas</h3>
+                <p>Use os botões rápidos para solicitar exames, dispositivos ou condutas com um clique.</p>
+            </div>
+
+            <div id="status-panel" class="panel" style="display: block !important;">
+                <h3>Status: Dispositivos & Exames</h3>
+                <div style="font-size: 0.95rem;">
+                    <h4 style="margin: 12px 0 8px 0; color: var(--accent);">Dispositivos Aplicados:</h4>
+                    <ul id="devices-list" style="margin: 0; padding-left: 20px; font-size: 0.9rem;"></ul>
+                    <h4 style="margin: 16px 0 8px 0; color: var(--accent);">Exames Realizados:</h4>
+                    <ul id="exams-list" style="margin: 0; padding-left: 20px; font-size: 0.9rem;"></ul>
+                </div>
+            </div>
+
+            <div id="log-panel" class="panel" style="display: block !important;">
+                <h3>Log de Ações</h3>
+                <ul id="action-log"></ul>
+            </div>
         </aside>
     </main>
     <script src="app.js"></script>

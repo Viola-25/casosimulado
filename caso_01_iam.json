@@ -1,23 +1,13 @@
 {
-  "id": "case-001",
+  "difficulty": "Intermediário",
   "patient": {
     "name": "João da Silva",
     "age": 55,
     "gender": "Masculino",
     "weight": 85
   },
-  "history": {
-    "main_complaint": "Dor no peito há 1 hora.",
-    "hma": "Paciente refere dor torácica retroesternal severa, tipo aperto, irradiada para membro superior esquerdo, iniciada em repouso. Acompanhada de sudorese e náuseas.",
-    "comorbidities": ["Hipertensão Arterial Sistêmica", "Tabagismo", "Dislipidemia"],
-    "allergies": ["Dipirona"]
-  },
-  "initial_vitals": {
-    "hr": 115,
-    "bp": "170/100",
-    "spo2": 93,
-    "rr": 24,
-    "temp": 36.5
-  },
-  "physical_exam": "Regular estado geral, lúcido e orientado. Fácies de dor, sudoreico, taquipneico. Murmúrio vesicular presente bilateralmente, sem ruídos adventícios. Bulhas rítmicas, normofonéticas, taquicárdico, sem sopros. Pulsos cheios e simétricos. Extremidades perfundidas, sem cianose."
+  "case": "Paciente de 55 anos, hipertenso, tabagista e dislipidêmico, apresenta dor torácica retroesternal severa, tipo aperto, irradiada para membro superior esquerdo, iniciada em repouso há 1 hora. Acompanhada de sudorese e náuseas. Sinais vitais: FC 115 bpm, PA 170/100 mmHg, SpO2 93%, FR 24 ipm, Temp 36.5°C. Exame físico: Regular estado geral, lúcido e orientado. Fácies de dor, sudoreico, taquipneico. Murmúrio vesicular presente bilateralmente, sem ruídos adventícios. Bulhas rítmicas, normofonéticas, taquicárdico, sem sopros. Pulsos cheios e simétricos. Extremidades perfundidas, sem cianose.",
+  "main_complaint": "Dor no peito há 1 hora",
+  "observations": "Caso clássico de Síndrome Coronariana Aguda. Deve-se priorizar diagnóstico rápido com ECG e marcadores cardíacos. Considerar manejo inicial com AAS, nitratos, morfina e oxigênio conforme protocolo. Atenção para contraindicações e efeitos colaterais dos medicamentos.",
+  "ai_instructions": "Você é um paciente simulando uma emergência médica. Responda de forma realista às perguntas do estudante. Para o caso de dor torácica, forneça respostas consistentes com um infarto agudo do miocárdio. Seja cooperativo mas não forneça informações que não sejam perguntadas. Mantenha o personagem do paciente em sofrimento."
 }
