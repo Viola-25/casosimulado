@@ -1,0 +1,23 @@
+{
+  "id": "case-001",
+  "patient": {
+    "name": "João da Silva",
+    "age": 55,
+    "gender": "Masculino",
+    "weight": 85
+  },
+  "history": {
+    "main_complaint": "Dor no peito há 1 hora.",
+    "hma": "Paciente refere dor torácica retroesternal severa, tipo aperto, irradiada para membro superior esquerdo, iniciada em repouso. Acompanhada de sudorese e náuseas.",
+    "comorbidities": ["Hipertensão Arterial Sistêmica", "Tabagismo", "Dislipidemia"],
+    "allergies": ["Dipirona"]
+  },
+  "initial_vitals": {
+    "hr": 115,
+    "bp": "170/100",
+    "spo2": 93,
+    "rr": 24,
+    "temp": 36.5
+  },
+  "physical_exam": "Regular estado geral, lúcido e orientado. Fácies de dor, sudoreico, taquipneico. Murmúrio vesicular presente bilateralmente, sem ruídos adventícios. Bulhas rítmicas, normofonéticas, taquicárdico, sem sopros. Pulsos cheios e simétricos. Extremidades perfundidas, sem cianose."
+}

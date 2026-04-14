@@ -1,0 +1,32 @@
+* { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { margin: 0; padding: 0; background-color: #f4f6f9; color: #333; }
+header { background-color: #2c3e50; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+.hidden { display: none !important; }
+#app-container { display: grid; grid-template-columns: 250px 1fr 300px; height: calc(100vh - 70px); }
+.sidebar { background-color: #34495e; padding: 1rem; color: white; }
+.sidebar button { display: block; width: 100%; margin-bottom: 10px; padding: 10px; background-color: #ecf0f1; border: none; border-radius: 4px; cursor: pointer; text-align: left; font-weight: bold; color: #2c3e50; }
+.sidebar button:hover { background-color: #bdc3c7; }
+.content-area { padding: 2rem; overflow-y: auto; background-color: #fff; }
+.patient-header { border-bottom: 2px solid #ecf0f1; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+.patient-header h2 { margin: 0 0 5px 0; color: #2980b9; }
+.panel { display: none; }
+.panel.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+.monitor { background-color: #000; color: #fff; padding: 1.5rem; border-left: 4px solid #2c3e50; }
+.monitor h3 { margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; }
+.vital { margin-bottom: 1.5rem; font-size: 1.2rem; display: flex; justify-content: space-between; align-items: center; }
+.vital .value { font-size: 2.5rem; font-weight: bold; font-family: 'Courier New', Courier, monospace; }
+.yellow { color: #f1c40f; }
+.red { color: #e74c3c; }
+.cyan { color: #00e5ff; }
+.white { color: #ffffff; }
+.green { color: #2ecc71; }
+button { padding: 10px 15px; border: none; background: #3498db; color: white; border-radius: 4px; cursor: pointer; margin: 5px; }
+button:hover { background: #2980b9; }
+.med-form { display: flex; gap: 10px; margin-top: 15px; }
+.med-form input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+.med-form select { padding: 10px; border-radius: 4px; }
+.log-area { margin-top: 2rem; border-top: 2px solid #ecf0f1; padding-top: 1rem; }
+#action-log { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; background: #ecf0f1; border-radius: 5px; padding: 10px; }
+#action-log li { margin-bottom: 5px; border-bottom: 1px solid #ddd; padding-bottom: 5px; font-size: 0.9em; }
+.alert { color: #e74c3c; font-weight: bold; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

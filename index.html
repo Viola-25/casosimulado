@@ -3,388 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Simulação Clínica - Colangite Aguda</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Estilos adicionais para barras de rolagem e transições suaves */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
-        
-        .fade-in { animation: fadeIn 0.4s ease-in-out; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Estilo para tabelas de exames */
-        .lab-table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
-        .lab-table th, .lab-table td { padding: 0.5rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
-        .lab-table th { background-color: #f8fafc; font-weight: 600; color: #475569; }
-    </style>
+    <title>Simulador de Paciente 360</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans h-screen flex flex-col overflow-hidden">
-
-    <!-- Cabeçalho / Identificação -->
-    <header class="bg-blue-900 text-white p-4 shadow-md flex justify-between items-center z-10">
-        <div>
-            <h1 class="text-2xl font-bold">Prontuário Eletrônico - Simulação OSCE</h1>
-            <p class="text-blue-200">Paciente: D. Maria Aparecida da Silva, 74 anos | Peso: 55kg</p>
-        </div>
-        <div class="text-right">
-            <span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">Alergias: Negadas</span>
-            <p class="text-sm mt-1">Procedência: SAMU</p>
+<body>
+    <header>
+        <h1>Simulador Paciente 360</h1>
+        <div class="file-loader">
+            <label for="api-key">Chave API Groq: </label>
+            <input type="password" id="api-key" placeholder="Insira sua API Key (gsk_...)" style="margin-bottom: 10px;">
+            <br>
+            <label for="case-file">Carregar Caso (JSON): </label>
+            <input type="file" id="case-file" accept=".json">
         </div>
     </header>
 
-    <div class="flex flex-1 overflow-hidden">
-        
-        <!-- PAINEL DO AVALIADOR (Controles) -->
-        <aside class="w-1/4 bg-white shadow-lg flex flex-col z-10 border-r border-gray-200">
-            <div class="p-4 bg-gray-50 border-b border-gray-200">
-                <h2 class="font-bold text-gray-700 uppercase text-sm tracking-wider">Controles do Avaliador</h2>
-                <p class="text-xs text-gray-500 mt-1">Selecione para revelar aos alunos</p>
-            </div>
-            
-            <div class="overflow-y-auto flex-1 p-4 space-y-4">
-                
-                <!-- Grupo: Avaliação Inicial -->
-                <div>
-                    <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2">Avaliação Inicial</h3>
-                    <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-blue-50 rounded transition">
-                        <input type="checkbox" onchange="toggleCard('card-exame-fisico')" class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                        <span class="font-medium text-gray-700">Exame Físico (Admissão)</span>
-                    </label>
-                </div>
-
-                <!-- Grupo: Laboratoriais -->
-                <div>
-                    <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2 mt-4">Exames Laboratoriais</h3>
-                    
-                    <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-blue-50 rounded transition">
-                        <input type="checkbox" onchange="toggleCard('card-hemo-coag')" class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                        <span class="font-medium text-gray-700">Hemograma e Coagulograma</span>
-                    </label>
-                    
-                    <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-blue-50 rounded transition">
-                        <input type="checkbox" onchange="toggleCard('card-renal-metab')" class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                        <span class="font-medium text-gray-700">Função Renal, Eletrólitos e Lactato</span>
-                    </label>
-
-                    <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-blue-50 rounded transition">
-                        <input type="checkbox" onchange="toggleCard('card-hepatico')" class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                        <span class="font-medium text-gray-700">Perfil Hepático e Pancreático</span>
-                    </label>
-
-                    <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-blue-50 rounded transition">
-                        <input type="checkbox" onchange="toggleCard('card-gasometria')" class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                        <span class="font-medium text-gray-700">Gasometria Arterial</span>
-                    </label>
-
-                    <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-blue-50 rounded transition">
-                        <input type="checkbox" onchange="toggleCard('card-eas')" class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                        <span class="font-medium text-gray-700">Urina 1 (EAS)</span>
-                    </label>
-                </div>
-
-                <!-- Grupo: Imagem e Outros -->
-                <div>
-                    <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2 mt-4">Exames de Imagem & Gráficos</h3>
-                    
-                    <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-blue-50 rounded transition">
-                        <input type="checkbox" onchange="toggleCard('card-ecg')" class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                        <span class="font-medium text-gray-700">Eletrocardiograma (ECG)</span>
-                    </label>
-
-                    <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-blue-50 rounded transition">
-                        <input type="checkbox" onchange="toggleCard('card-rx-torax')" class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                        <span class="font-medium text-gray-700">Radiografia de Tórax</span>
-                    </label>
-
-                    <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-blue-50 rounded transition">
-                        <input type="checkbox" onchange="toggleCard('card-usg')" class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                        <span class="font-medium text-gray-700">POCUS / USG Abdominal</span>
-                    </label>
-
-                    <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-blue-50 rounded transition">
-                        <input type="checkbox" onchange="toggleCard('card-tc')" class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                        <span class="font-medium text-gray-700">TC de Abdome (Após estabilizar)</span>
-                    </label>
-                </div>
-
-                <!-- Grupo: Evolução (Cena 2) -->
-                <div class="mt-8 border-t-2 border-red-200 pt-4">
-                    <h3 class="text-xs font-semibold text-red-600 uppercase mb-2">ETAPA 2: Evolução</h3>
-                    <label class="flex items-center space-x-3 cursor-pointer p-2 bg-red-50 hover:bg-red-100 rounded transition border border-red-200">
-                        <input type="checkbox" onchange="toggleCard('card-evolucao')" class="form-checkbox h-5 w-5 text-red-600 rounded focus:ring-red-500">
-                        <span class="font-bold text-red-800">Mostrar Piora Clínica</span>
-                    </label>
-                </div>
-
-            </div>
+    <main id="app-container" class="hidden">
+        <aside class="sidebar">
+            <h3>Ações</h3>
+            <button onclick="showPanel('anamnesis')">Anamnese</button>
+            <button onclick="showPanel('exam')">Exame Físico</button>
+            <button onclick="showPanel('access')">Acessos e Dispositivos</button>
+            <button onclick="showPanel('meds')">Medicamentos</button>
+            <button onclick="showPanel('conduct')">Condutas</button>
         </aside>
 
-        <!-- PAINEL DO ALUNO (Visualização) -->
-        <main class="w-3/4 p-6 overflow-y-auto bg-gray-200" id="main-display">
-            
-            <div class="text-center text-gray-400 mt-20" id="placeholder-text">
-                <svg class="mx-auto h-16 w-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <p class="text-xl">Aguardando solicitação de dados...</p>
+        <section class="content-area">
+            <div class="patient-header">
+                <h2 id="patient-name">Nome do Paciente</h2>
+                <p><span id="patient-age"></span> anos | <span id="patient-gender"></span> | Peso: <span id="patient-weight"></span>kg</p>
             </div>
 
-            <div class="max-w-4xl mx-auto space-y-6 pb-20">
+            <div id="panel-anamnesis" class="panel active">
+                <h3>História Clínica</h3>
+                <p><strong>Queixa Principal:</strong> <span id="cc"></span></p>
+                <p><strong>HMA:</strong> <span id="hma"></span></p>
+                <p><strong>Comorbidades:</strong> <span id="comorbidities"></span></p>
+                <p><strong>Alergias:</strong> <span class="alert" id="allergies"></span></p>
 
-                <!-- EXAME FÍSICO -->
-                <div id="card-exame-fisico" class="bg-white rounded-lg shadow-md p-6 hidden fade-in">
-                    <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Exame Físico (Admissão)</h2>
-                    <ul class="space-y-3 text-lg">
-                        <li><strong>Estado Geral:</strong> Regular a ruim. Visivelmente toxêmica, letárgica, confusa. Glasgow 13 (AO:3, RV:4, RM:6).</li>
-                        <li><strong>Pele/Mucosas:</strong> Descorada (++/4+), intensamente ictérica (++++/4+), desidratada (++/4+), diaforese.</li>
-                        <li><strong>Sinais Vitais:</strong> 
-                            PA: 80x45 mmHg | 
-                            FC: 118 bpm | 
-                            FR: 28 irpm | 
-                            Temp: 39,1°C | 
-                            SatO2: 92% (ar ambiente).
-                        </li>
-                        <li><strong>Perfusão:</strong> TEC 5 segundos. Extremidades cianóticas (+/4+). Pulsos finos e filiformes.</li>
-                        <li><strong>Resp./Cardio:</strong> Expansibilidade preservada, MV audível sem ruídos. Bulhas rítmicas normofonéticas, sem sopros.</li>
-                        <li><strong>Abdome:</strong> Plano, flácido. Hipertimpânico. Dor à palpação profunda em HD e epigástrio. Blumberg negativo. <br>
-                            Dor no ponto cístico (Murphy difícil avaliar pela alteração do nível de consciência). Massa palpável, lisa, móvel e indolor em HD. RHA presentes, hipoativos.
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- HEMOGRAMA E COAGULOGRAMA -->
-                <div id="card-hemo-coag" class="bg-white rounded-lg shadow-md p-6 hidden fade-in">
-                    <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Hemograma & Coagulograma</h2>
-                    <table class="lab-table text-lg">
-                        <tr><th>Exame</th><th>Resultado</th><th>Valor de Referência</th></tr>
-                        <tr><td>Hemoglobina (Hb) / Ht</td><td>10.2 g/dL / 31%</td><td>12-16 g/dL / 36-46%</td></tr>
-                        <tr><td>Leucócitos</td><td>23.500 /mm³</td><td>4.000 - 10.000 /mm³</td></tr>
-                        <tr><td>Bastões</td><td>20%</td><td>0 - 5%</td></tr>
-                        <tr><td>Plaquetas</td><td>110.000 /mm³</td><td>150.000 - 450.000 /mm³</td></tr>
-                        <tr><td>Tempo de Protrombina (TP)</td><td>16,5 s (INR: 1.55)</td><td>Controle: 12,0s</td></tr>
-                        <tr><td>TTPA</td><td>38 s (Rel: 1.2)</td><td>-</td></tr>
-                    </table>
-                </div>
-
-                <!-- FUNÇÃO RENAL / METABÓLICO -->
-                <div id="card-renal-metab" class="bg-white rounded-lg shadow-md p-6 hidden fade-in">
-                    <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Função Renal, Eletrólitos e Lactato</h2>
-                    <table class="lab-table text-lg">
-                        <tr><th>Exame</th><th>Resultado</th><th>Valor de Referência</th></tr>
-                        <tr><td>Glicemia Capilar</td><td>178 mg/dL</td><td>< 140 mg/dL</td></tr>
-                        <tr><td>Ureia / Creatinina</td><td>98 mg/dL / 2,1 mg/dL</td><td>15-45 / 0,6-1,1 mg/dL</td></tr>
-                        <tr><td>Sódio / Potássio</td><td>134 mEq/L / 4,1 mEq/L</td><td>135-145 / 3,5-5,0 mEq/L</td></tr>
-                        <tr><td>Lactato arterial</td><td>5,4 mmol/L</td><td>< 2,0 mmol/L</td></tr>
-                        <tr><td>Proteína C Reativa (PCR)</td><td>285 mg/L</td><td>< 5,0 mg/L</td></tr>
-                        <tr><td>Troponina T us</td><td>12 ng/L</td><td>< 14 ng/L</td></tr>
-                    </table>
-                </div>
-
-                <!-- PERFIL HEPÁTICO / PANCREÁTICO -->
-                <div id="card-hepatico" class="bg-white rounded-lg shadow-md p-6 hidden fade-in">
-                    <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Perfil Hepático, Biliar e Pancreático</h2>
-                    <table class="lab-table text-lg">
-                        <tr><th>Exame</th><th>Resultado</th><th>Valor de Referência</th></tr>
-                        <tr><td>Bilirrubina Total</td><td>16.8 mg/dL</td><td>0,3 - 1,2 mg/dL</td></tr>
-                        <tr><td>Bilirrubina Direta</td><td>14.2 mg/dL</td><td>< 0,3 mg/dL</td></tr>
-                        <tr><td>Fosfatase Alcalina (FA)</td><td>1.120 U/L</td><td>35 - 104 U/L</td></tr>
-                        <tr><td>Gama-GT (GGT)</td><td>850 U/L</td><td>8 - 40 U/L</td></tr>
-                        <tr><td>AST (TGO) / ALT (TGP)</td><td>145 U/L / 160 U/L</td><td>10 - 35 U/L</td></tr>
-                        <tr><td>Lipase / Amilase</td><td>45 U/L / 80 U/L</td><td>Normais</td></tr>
-                        <tr><td>Albumina</td><td>2,8 g/dL</td><td>3,5 - 5,0 g/dL</td></tr>
-                    </table>
-                </div>
-
-                <!-- GASOMETRIA -->
-                <div id="card-gasometria" class="bg-white rounded-lg shadow-md p-6 hidden fade-in">
-                    <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Gasometria Arterial (Ar ambiente)</h2>
-                    <table class="lab-table text-lg">
-                        <tr><th>Parâmetro</th><th>Resultado</th></tr>
-                        <tr><td>pH</td><td>7,26</td></tr>
-                        <tr><td>pCO2</td><td>29 mmHg</td></tr>
-                        <tr><td>pO2</td><td>70 mmHg</td></tr>
-                        <tr><td>HCO3-</td><td>14 mEq/L</td></tr>
-                        <tr><td>Base Excess (BE)</td><td>-11,0 mmol/L</td></tr>
-                        <tr><td>SatO2</td><td>92%</td></tr>
-                    </table>
-                </div>
-
-                <!-- EAS -->
-                <div id="card-eas" class="bg-white rounded-lg shadow-md p-6 hidden fade-in">
-                    <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Urina 1 (EAS)</h2>
-                    <ul class="space-y-2 text-lg">
-                        <li><strong>Aspecto/Cor:</strong> Turvo. Castanho escuro.</li>
-                        <li><strong>Densidade/pH:</strong> 1.025 / 6.0</li>
-                        <li><strong>Bilirrubinas:</strong> +++</li>
-                        <li><strong>Urobilinogênio:</strong> Normal</li>
-                        <li><strong>Leucócitos/Hemácias:</strong> 5.000 / 2.000 (Normais)</li>
-                        <li><strong>Nitrito:</strong> Negativo</li>
-                    </ul>
-                </div>
-
-                <!-- ECG -->
-                <div id="card-ecg" class="bg-white rounded-lg shadow-md p-6 hidden fade-in">
-                    <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Eletrocardiograma (ECG)</h2>
-                    <p class="text-lg mb-4"><strong>Laudo:</strong> Ritmo sinusal, taquicardia (118 bpm). Eixo normal. Sem sinais de isquemia aguda ou alterações do segmento ST/T.</p>
-                    
-                    <!-- AREA PARA IMAGEM NO GITHUB -->
-                    <div class="mt-4 border-2 border-dashed border-gray-400 p-8 text-center bg-gray-50 rounded">
-                        <img src="ecg.png" alt="[Imagem ECG]" onerror="this.onerror=null; this.style.display='none';" class="mx-auto max-h-96 object-contain rounded shadow">
+                <div class="anamnesis-chat">
+                    <h4>Conversar com o Paciente</h4>
+                    <div id="anamnesis-log" class="chat-log"></div>
+                    <div class="chat-input">
+                        <input type="text" id="anamnesis-question" placeholder="Faça uma pergunta ao paciente..." onkeydown="if(event.key==='Enter') askPatient()">
+                        <button onclick="askPatient()">Perguntar</button>
                     </div>
                 </div>
-
-                <!-- RX TÓRAX -->
-                <div id="card-rx-torax" class="bg-white rounded-lg shadow-md p-6 hidden fade-in">
-                    <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Radiografia de Tórax (Leito)</h2>
-                    <p class="text-lg mb-4"><strong>Laudo:</strong> Sem consolidações, sem pneumoperitônio detectável sob as cúpulas diafragmáticas. Área cardíaca normal.</p>
-                    
-                    <!-- AREA PARA IMAGEM NO GITHUB -->
-                    <div class="mt-4 border-2 border-dashed border-gray-400 p-8 text-center bg-gray-50 rounded">
-                        <img src="rx-torax.png" alt="[Imagem RX]" onerror="this.onerror=null; this.style.display='none';" class="mx-auto max-h-96 object-contain rounded shadow">
-                    </div>
-                </div>
-
-                <!-- USG POCUS -->
-                <div id="card-usg" class="bg-white rounded-lg shadow-md p-6 hidden fade-in">
-                    <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">POCUS / USG Abdominal Total</h2>
-                    <ul class="space-y-3 text-lg mb-6">
-                        <li><strong>Fígado/Vias Biliares:</strong> Intensa dilatação das vias biliares intra-hepáticas. Colédoco acentuadamente dilatado (17 mm no terço proximal/médio).</li>
-                        <li><strong>Vesícula Biliar:</strong> Acentuadamente distendida (hidrópica), paredes finas, sem cálculos (alitiásica).</li>
-                        <li><strong>Pâncreas:</strong> Imagem nodular hipoecogênica (aprox. 4.5x4.0 cm) na transição da cabeça, promovendo amputação abrupta do colédoco distal.</li>
-                        <li><strong>Cavidade:</strong> Sem líquido livre. Aorta normal. Rins sem hidronefrose.</li>
-                    </ul>
-
-                    <!-- AREA PARA IMAGEM NO GITHUB -->
-                    <div class="mt-4 border-2 border-dashed border-gray-400 p-8 text-center bg-gray-50 rounded">
-                        <img src="usg.png" alt="[Imagem USG]" onerror="this.onerror=null; this.style.display='none';" class="mx-auto max-h-96 object-contain rounded shadow">
-                    </div>
-                </div>
-
-                <!-- TC ABDOME -->
-                <div id="card-tc" class="bg-white rounded-lg shadow-md p-6 hidden fade-in">
-                    <div class="flex justify-between items-center border-b pb-2 mb-4">
-                        <h2 class="text-2xl font-bold text-gray-800">Tomografia Computadorizada (TC) de Abdome</h2>
-                        <span class="bg-yellow-200 text-yellow-800 text-xs px-2 py-1 rounded font-bold">FEITA APÓS ESTABILIZAÇÃO</span>
-                    </div>
-                    <ul class="space-y-3 text-lg mb-6">
-                        <li><strong>Fígado e Vias Biliares:</strong> Acentuada dilatação intra e extra-hepática. Colédoco atinge 18 mm. Vesícula hiperdistendida (12x5 cm), alitiásica.</li>
-                        <li><strong>Pâncreas:</strong> Presença de lesão expansiva, sólida, hipoatenuante na topografia da cabeça pancreática (4.5x4.2x4.0 cm). Determina obstrução abrupta do colédoco e do ducto de Wirsung (dilatado com 6mm).</li>
-                        <li><strong>Linfonodos:</strong> Linfonodomegalias peripancreáticas e no hilo hepático.</li>
-                        <li><strong>Vasos/Outros:</strong> Sem sinais de isquemia mesentérica. Rins normais. Sem pneumoperitônio.</li>
-                    </ul>
-
-                    <!-- AREA PARA IMAGEM NO GITHUB -->
-                    <div class="mt-4 border-2 border-dashed border-gray-400 p-8 text-center bg-gray-50 rounded">
-                        <img src="tc-abdome.png" alt="[Imagem TC]" onerror="this.onerror=null; this.style.display='none';" class="mx-auto max-h-96 object-contain rounded shadow">
-                    </div>
-                </div>
-
-                <!-- RX TÓRAX -->
-                <div id="card-rx-torax" class="bg-white rounded-lg shadow-md p-6 hidden fade-in">
-                    <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Radiografia de Tórax (Leito)</h2>
-                    <p class="text-lg mb-4"><strong>Laudo:</strong> Sem consolidações, sem pneumoperitônio detectável sob as cúpulas diafragmáticas. Área cardíaca normal.</p>
-                    
-                    <!-- AREA PARA IMAGEM NO GITHUB -->
-                    <div class="mt-4 border-2 border-dashed border-gray-400 p-8 text-center bg-gray-50 rounded">
-                        <img src="rx-torax.jpg" alt="[Imagem RX]" onerror="this.onerror=null; this.src='rx-torax.png'; this.onerror=function(){this.style.display='none';};" class="mx-auto max-h-96 object-contain rounded shadow">
-                    </div>
-                </div>
-
-                <!-- USG POCUS -->
-                <div id="card-usg" class="bg-white rounded-lg shadow-md p-6 hidden fade-in">
-                    <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">POCUS / USG Abdominal Total</h2>
-                    <ul class="space-y-3 text-lg mb-6">
-                        <li><strong>Fígado/Vias Biliares:</strong> Intensa dilatação das vias biliares intra-hepáticas. Colédoco acentuadamente dilatado (17 mm no terço proximal/médio).</li>
-                        <li><strong>Vesícula Biliar:</strong> Acentuadamente distendida (hidrópica), paredes finas, sem cálculos (alitiásica).</li>
-                        <li><strong>Pâncreas:</strong> Imagem nodular hipoecogênica (aprox. 4.5x4.0 cm) na transição da cabeça, promovendo amputação abrupta do colédoco distal.</li>
-                        <li><strong>Cavidade:</strong> Sem líquido livre. Aorta normal. Rins sem hidronefrose.</li>
-                    </ul>
-
-                    <!-- AREA PARA IMAGEM NO GITHUB -->
-                    <div class="mt-4 border-2 border-dashed border-gray-400 p-8 text-center bg-gray-50 rounded">
-                        <img src="usg.jpg" alt="[Imagem USG]" onerror="this.onerror=null; this.src='usg.png'; this.onerror=function(){this.style.display='none';};" class="mx-auto max-h-96 object-contain rounded shadow">
-                    </div>
-                </div>
-
-                <!-- TC ABDOME -->
-                <div id="card-tc" class="bg-white rounded-lg shadow-md p-6 hidden fade-in">
-                    <div class="flex justify-between items-center border-b pb-2 mb-4">
-                        <h2 class="text-2xl font-bold text-gray-800">Tomografia Computadorizada (TC) de Abdome</h2>
-                        <span class="bg-yellow-200 text-yellow-800 text-xs px-2 py-1 rounded font-bold">FEITA APÓS ESTABILIZAÇÃO</span>
-                    </div>
-                    <ul class="space-y-3 text-lg mb-6">
-                        <li><strong>Fígado e Vias Biliares:</strong> Acentuada dilatação intra e extra-hepática. Colédoco atinge 18 mm. Vesícula hiperdistendida (12x5 cm), alitiásica.</li>
-                        <li><strong>Pâncreas:</strong> Presença de lesão expansiva, sólida, hipoatenuante na topografia da cabeça pancreática (4.5x4.2x4.0 cm). Determina obstrução abrupta do colédoco e do ducto de Wirsung (dilatado com 6mm).</li>
-                        <li><strong>Linfonodos:</strong> Linfonodomegalias peripancreáticas e no hilo hepático.</li>
-                        <li><strong>Vasos/Outros:</strong> Sem sinais de isquemia mesentérica. Rins normais. Sem pneumoperitônio.</li>
-                    </ul>
-
-                    <!-- AREA PARA IMAGEM NO GITHUB -->
-                    <div class="mt-4 border-2 border-dashed border-gray-400 p-8 text-center bg-gray-50 rounded">
-                        <img src="tc-abdome.jpg" alt="[Imagem TC]" onerror="this.onerror=null; this.src='tc-abdome.png'; this.onerror=function(){this.style.display='none';};" class="mx-auto max-h-96 object-contain rounded shadow">
-                    </div>
-                </div>
-
-                <!-- EVOLUÇÃO (CENA 2) -->
-                <div id="card-evolucao" class="bg-red-50 rounded-lg shadow-xl p-6 hidden fade-in border-2 border-red-600">
-                    <div class="flex items-center space-x-3 mb-4">
-                        <svg class="h-10 w-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                        <h2 class="text-3xl font-extrabold text-red-800">ATENÇÃO DA ENFERMAGEM</h2>
-                    </div>
-                    
-                    <div class="bg-white p-4 rounded border border-red-200 mb-6 italic text-xl text-gray-700">
-                        "Doutores, a paciente recebeu 1.500 mL de Ringer Lactato conforme prescrito, mas agora está muito sonolenta, não responde mais quando chamamos e a respiração parece estar mais ofegante. A pressão não subiu."
-                    </div>
-
-                    <h3 class="font-bold text-2xl text-gray-800 mb-3 border-b border-red-200 pb-2">Novos Sinais Vitais (Reavaliação)</h3>
-                    <ul class="space-y-4 text-xl">
-                        <li><strong>Nível de Consciência:</strong> Glasgow 8 (AO:2, RV:2, RM:4).</li>
-                        <li><strong>Pressão Arterial:</strong> 65 x 40 mmHg</li>
-                        <li><strong>Frequência Cardíaca:</strong> 132 bpm</li>
-                        <li><strong>Frequência Respiratória:</strong> 34 irpm (Uso de musculatura acessória)</li>
-                        <li><strong>Saturação O2:</strong> 87% (Mesmo com O2 a 3L/min)</li>
-                    </ul>
-                </div>
-
             </div>
-        </main>
-    </div>
 
-    <script>
-        function toggleCard(cardId) {
-            const card = document.getElementById(cardId);
-            const placeholder = document.getElementById('placeholder-text');
-            
-            // Toggle visibility
-            if (card.classList.contains('hidden')) {
-                card.classList.remove('hidden');
-            } else {
-                card.classList.add('hidden');
-            }
+            <div id="panel-exam" class="panel">
+                <h3>Exame Físico</h3>
+                <p id="physical-exam-text"></p>
+            </div>
 
-            // Hide placeholder if any card is visible
-            const allCards = document.querySelectorAll('.max-w-4xl > div');
-            let anyVisible = false;
-            allCards.forEach(c => {
-                if (!c.classList.contains('hidden') && c.id !== 'placeholder-text') {
-                    anyVisible = true;
-                }
-            });
+            <div id="panel-access" class="panel">
+                <h3>Acessos e Dispositivos</h3>
+                <button onclick="performAction('Acesso Venoso Periférico puncionado.')">Puncionar AVP</button>
+                <button onclick="performAction('Acesso Venoso Central passado.')">Passar AVC</button>
+                <button onclick="performAction('Monitorização instalada.')">Instalar Monitor</button>
+                <button onclick="performAction('O2 Suplementar (Cateter) instalado.')">O2 Cateter Nasal</button>
+            </div>
 
-            if (anyVisible) {
-                placeholder.classList.add('hidden');
-            } else {
-                placeholder.classList.remove('hidden');
-            }
-        }
-    </script>
+            <div id="panel-meds" class="panel">
+                <h3>Medicamentos</h3>
+                <div class="med-form">
+                    <select id="med-route">
+                        <option value="VO">VO</option>
+                        <option value="EV">EV</option>
+                        <option value="IM">IM</option>
+                        <option value="SC">SC</option>
+                    </select>
+                    <input type="text" id="med-name" placeholder="Medicamento e dose (ex: AAS 300mg)">
+                    <button onclick="administerMed()">Administrar</button>
+                </div>
+            </div>
+
+            <div id="panel-conduct" class="panel">
+                <h3>Condutas e Exames</h3>
+                <button onclick="performAction('ECG 12 derivações solicitado.')">Solicitar ECG</button>
+                <button onclick="performAction('Exames laboratoriais coletados.')">Coletar Laboratório</button>
+                <button onclick="performAction('Raio-X de Tórax solicitado.')">Raio-X de Tórax</button>
+                <button onclick="performAction('Desfibrilação / Cardioversão realizada.')">Choque Elétrico</button>
+
+                <div class="exam-results-area" style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px;">
+                    <h4>Resultados Recebidos</h4>
+                    <div id="exam-results-list"></div>
+                </div>
+            </div>
+
+            <div class="log-area">
+                <h3>Log de Ações</h3>
+                <ul id="action-log"></ul>
+            </div>
+        </section>
+
+        <aside class="monitor">
+            <h3>Monitor Multiparamétrico</h3>
+            <div class="vital"><span class="label">FC (bpm):</span> <span id="vital-hr" class="value yellow">--</span></div>
+            <div class="vital"><span class="label">PA (mmHg):</span> <span id="vital-bp" class="value red">--</span> <button onclick="measureBP()" style="margin-left: 10px; font-size: 0.7em; cursor: pointer;">Reaferir</button></div>
+            <div class="vital"><span class="label">SpO2 (%):</span> <span id="vital-spo2" class="value cyan">--</span></div>
+            <div class="vital"><span class="label">FR (irpm):</span> <span id="vital-rr" class="value white">--</span></div>
+            <div class="vital"><span class="label">Temp (ºC):</span> <span id="vital-temp" class="value green">--</span></div>
+        </aside>
+    </main>
+    <script src="app.js"></script>
 </body>
 </html>
